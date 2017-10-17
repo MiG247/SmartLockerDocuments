@@ -1,0 +1,552 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "StudyQuiz API"
+security:
+- Study-Key: []
+paths:
+  /:
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Returns the landing page."
+      operationId: "getHtml"
+      produces:
+      - "text/html"
+      parameters:
+        - name: "id"
+          in: "query"
+          description: "Share Links have this id set to the quizId"
+          required: false
+          type: "string"
+      responses:
+        200:
+          description: "Html Page"
+          schema:
+            type: "string"
+      x-swagger-router-controller: "StudyQuiz"
+  /quiz:
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Gets a array of `quiz` objects."
+      operationId: "getQuizArray"
+      produces:
+      - 'application/json'
+      - 'text/plain'
+      parameters:
+      - $ref: "#/parameters/size"
+      - $ref: "#/parameters/offset"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Quiz"
+          examples:
+            "application/json":
+              - _id: "18fb41389c179057a7997e12"
+                questions:
+                  - "18fb45989c179057a7997e44"
+                  - "18fb452189c179057a7997e5"
+                  - "18fb41389c179057a7997e46"
+                  - "18fb45123c179057a7997e47"
+                configuration: "text"
+                faculty: "informatics"
+                subject: "datacommunication"
+                quizUrl: "http://studyquiz.if.haw-landshut.de/?id=18fb41389c179057a7997e12"
+                challenger: "18fb23123c179057a7997e47"
+              - _id: "20fb41389c179057a7997e12"
+                questions:
+                  - "18fb45989c179057a7997e44"
+                  - "18fb452189c179057a7997e5"
+                  - "18fb41389c179057a7997e46"
+                  - "18fb45123c179057a7997e47"
+                configuration: "text"
+                faculty: "informatics"
+                subject: "datacommunication"
+                quizUrl: "http://studyquiz.if.haw-landshut.de/?id=20fb41389c179057a7997e12"
+                challenger: "18fb23123c179057a7997e47"
+                opponent: "18cb23123c179057a7997e47"
+        403:
+          description: "No permission to view this data. Only with backend Token"
+          schema:
+            type: "string"
+        500:
+          description: "Error on Database"
+          schema:
+            $ref: "#/definitions/ErrorModel"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+      security:
+      - Study-Key: []
+    post:
+      tags:
+      - "StudyQuiz"
+      description: "Create a new quiz."
+      operationId: "createQuiz"
+      parameters:
+      - in: "body"
+        name: "quiz"
+        description: "Details of the new quiz"
+        required: true
+        schema:
+          $ref: "#/definitions/Quiz"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Quiz"
+          examples:
+            "application/json":
+              _id: "18fb41389c179057a7997e12"
+              questions:
+                - "18fb45989c179057a7997e44"
+                - "18fb452189c179057a7997e5"
+                - "18fb41389c179057a7997e46"
+                - "18fb45123c179057a7997e47"
+              configuration: "text"
+              faculty: "informatics"
+              subject: "datacommunication"
+              quizUrl: "http://studyquiz.if.haw-landshut.de/?id=18fb41389c179057a7997e12"
+              challenger: "18fb23123c179057a7997e47"
+        403:
+          description: "No permission to view this data. Normal User Token needed"
+        404:
+          description: "Not enough Questions for building a Quiz. min: 4"
+          schema:
+            $ref: "#/definitions/ErrorModel"
+        500:
+          description: "Database Error"
+          schema:
+            $ref: "#/definitions/ErrorModel"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+  /question:
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Gets a array of `question` objects."
+      operationId: "getQuestionArray"
+      parameters:
+      - $ref: "#/parameters/size"
+      - $ref: "#/parameters/offset"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Question"
+          examples:
+            "application/json":
+              - _id: "18fb23123c179057a7997e47"
+                question: "Was ist 1 + 1?"
+                answer:
+                  - text: "2"
+                    right: true
+                  - text: "1"
+                  - text: "4"
+                  - text: "0"
+                category: "text"
+                faculty: "test"
+                subject: "math"
+                userId: "18dd23123c179057a7997e47"
+              - _id: "18fb23123c179057a7997e47"
+                question: "Was ist 2 + 1?"
+                answer:
+                  - text: "3"
+                    right: true
+                  - text: "1"
+                  - text: "3"
+                    right: true
+                  - text: "0"
+                category: "text"
+                faculty: "test"
+                subject: "math"
+        403:
+          description: "No permission to view this data"
+        500:
+          description: "Database Error"
+          schema:
+            $ref: "#/definitions/ErrorModel"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    post:
+      tags:
+      - "StudyQuiz"
+      description: "Create a new question."
+      operationId: "createQuestion"
+      parameters:
+      - in: "body"
+        name: "question"
+        description: "Details of the new question"
+        required: true
+        schema:
+          $ref: "#/definitions/Question"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Question"
+        403:
+          description: "No permission to view this data"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorModel"
+      x-swagger-router-controller: "StudyQuiz"
+  /user:
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Gets a array of `user` objects."
+      operationId: "getUserArray"
+      parameters:
+      - $ref: "#/parameters/size"
+      - $ref: "#/parameters/offset"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/User"
+        403:
+          description: "No permission to view this data"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    post:
+      tags:
+      - "StudyQuiz"
+      description: "Create a new user."
+      operationId: "createUser"
+      parameters:
+      - in: "body"
+        name: "user"
+        description: "Details of the new user"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/User"
+        403:
+          description: "No permission to view this data"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/ErrorModel"
+      x-swagger-router-controller: "StudyQuiz"
+  /quiz/{quizId}:
+    parameters:
+      - $ref: "#/parameters/quizId"
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Gets basic information about a quiz."
+      operationId: "getQuiz"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Quiz"
+        403:
+          description: "No permission to view this data"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    post:
+      tags:
+      - "StudyQuiz"
+      description: "Update a quiz."
+      operationId: "updateQuiz"
+      parameters:
+      - in: "body"
+        name: "quiz"
+        description: "Updated quiz details"
+        required: true
+        schema:
+          $ref: "#/definitions/Quiz"
+      responses:
+        200:
+          description: "OK"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    delete:
+      tags:
+      - "StudyQuiz"
+      description: "Delete a quiz."
+      operationId: "deleteQuiz"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+  /quiz/{userId}/quizzes:
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Gets all quizzes of a user."
+      operationId: "getAllQuizzesOfUser"
+      parameters:
+      - $ref: "#/parameters/userId"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Quiz"
+        403:
+          description: "No permission to view this data"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+  /question/{questionId}:
+    parameters:
+    - $ref: "#/parameters/questionId"
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Gets basic information about a question."
+      operationId: "getQuestion"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Question"
+        403:
+          description: "No permission to view this data"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    post:
+      tags:
+      - "StudyQuiz"
+      description: "Update a question."
+      operationId: "updateQuestion"
+      parameters:
+      - in: "body"
+        name: "question"
+        description: "Updated question details"
+        required: false
+        schema:
+          $ref: "#/definitions/Question"
+      responses:
+        200:
+          description: "Question was updated"
+        204:
+          description: "Question was deleted because the MIN_RATING was reached"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    delete:
+      tags:
+      - "StudyQuiz"
+      description: "Delete a question."
+      operationId: "deleteQuestion"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+  /user/{userId}:
+    parameters:
+    - $ref: "#/parameters/userId"
+    get:
+      tags:
+      - "StudyQuiz"
+      description: "Gets basic information about an user."
+      operationId: "getUser"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/User"
+        403:
+          description: "No permission to view this data"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    post:
+      tags:
+      - "StudyQuiz"
+      description: "Update a user."
+      operationId: "updateUser"
+      parameters:
+      - in: "body"
+        name: "user"
+        description: "Updated user details"
+        required: false
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        200:
+          description: "OK"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+    delete:
+      tags:
+      - "StudyQuiz"
+      description: "Delete a user."
+      operationId: "deleteUser"
+      parameters: []
+      responses:
+        200:
+          description: "OK"
+        default:
+          description: "unexpected error"
+      x-swagger-router-controller: "StudyQuiz"
+definitions:
+  Quiz:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      questions:
+        type: "array"
+        description: "Array of questionIds."
+        items:
+          type: "string"
+      configuration:
+        type: "string"
+        default: "text"
+        enum:
+          - "text"
+      faculty:
+        type: "string"
+      subject:
+        type: "string"
+      quizUrl:
+        type: "string"
+      challenger:
+        type: "string"
+        description: "userId"
+      opponent:
+        type: "string"
+        description: "userId"
+      challengerPoints:
+        type: "integer"
+        format: "int32"
+      opponentPoints:
+        type: "integer"
+        format: "int32"
+  Question:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      question:
+        type: "string"
+      answer:
+        type: "array"
+        maxItems: 4
+        minItems: 4
+        items:
+          type: "object"
+          properties:
+            text:
+              type: "string"
+            right:
+              type: "boolean"
+              default: "false"
+      category:
+        type: "string"
+        default: "text"
+        enum:
+          - "text"
+      faculty:
+        type: "string"
+      subject:
+        type: "string"
+      userId:
+        type: "string"
+      rating:
+        type: "integer"
+        format: "int32"
+        default: 0
+        maximum: 1
+        minimum: -1
+  User:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      username:
+        type: "string"
+      won:
+        type: "integer"
+        format: "int32"
+      lost:
+        type: "integer"
+        format: "int32"
+      token:
+        type: "string"
+      key:
+        type: "string"
+  ErrorModel:
+    type: "object"
+    properties:
+      status:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      err:
+        type: "string"
+parameters:
+  userId:
+    name: "userId"
+    in: "path"
+    description: "The user identifier number"
+    required: true
+    type: "string"
+  quizId:
+    name: "quizId"
+    in: "path"
+    description: "The quiz identifier number"
+    required: true
+    type: "string"
+  questionId:
+    name: "questionId"
+    in: "path"
+    description: "The question identifier number"
+    required: true
+    type: "string"
+  size:
+    name: "size"
+    in: "query"
+    description: "Size of array to receive"
+    required: false
+    type: "integer"
+    format: "int32"
+  offset:
+    name: "offset"
+    in: "query"
+    description: "Start index of the source"
+    required: false
+    type: "integer"
+    format: "int32"
+securityDefinitions:
+  Study-Key:
+    type: apiKey
+    name: Study-Key
+    in: header
